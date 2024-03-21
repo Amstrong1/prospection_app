@@ -233,12 +233,8 @@ class NewProspectState extends State<SuspectToProspect> {
                               var url = Uri.parse(
                                 'http://prospection.vibecro-corp.tech/api/prospect-from-suspect',
                               );
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              var userId = prefs.getInt('user_id');
                               try {
                                 final response = await http.post(url, body: {
-                                  'user': userId.toString(),
                                   'suspect': _selectedSuspect.toString(),
                                   'app_date': dateInput.text,
                                   'app_time': timeInput.text,
