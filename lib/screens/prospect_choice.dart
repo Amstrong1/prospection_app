@@ -20,12 +20,12 @@ class ChoicePage extends StatelessWidget {
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),
                 ),
-                child: const Text('Changer un suspect en prospect'),
+                child: const Text('Confirmer un rendez avec un suspect'),
               ),
             ),
             Container(
@@ -33,11 +33,11 @@ class ChoicePage extends StatelessWidget {
               margin: const EdgeInsets.all(16),
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/new_prospect');
+                  Navigator.pushNamed(context, '/newprospect');
                 },
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Colors.orange,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),
                   ),

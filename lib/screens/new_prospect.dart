@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NewProspect extends StatefulWidget {
@@ -28,7 +29,16 @@ class NewProspectState extends State<NewProspect> {
   late String _firstname;
   late String _report;
 
-  String _selectedOption = 'Indécis';
+  String _selectedOption = 'Indecis';
+
+  void _reloadApp() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MyBottomNavigationBar()),
+        (Route<dynamic> route) => false,
+      );
+    });
+  }
 
   Future<void> fetchSolutions() async {
     final response = await http.get(
@@ -80,7 +90,7 @@ class NewProspectState extends State<NewProspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le nom du suspect';
+                      return 'Entrez le nom du prospect';
                     }
                     return null;
                   },
@@ -98,7 +108,7 @@ class NewProspectState extends State<NewProspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le(s) prénom(s) du suspect';
+                      return 'Entrez le(s) prénom(s) du prospect';
                     }
                     return null;
                   },
@@ -117,7 +127,7 @@ class NewProspectState extends State<NewProspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le numero du suspect';
+                      return 'Entrez le numero du prospect';
                     }
                     return null;
                   },
@@ -157,7 +167,7 @@ class NewProspectState extends State<NewProspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le numero du suspect';
+                      return 'Entrez le numero du prospect';
                     }
                     return null;
                   },
@@ -177,7 +187,7 @@ class NewProspectState extends State<NewProspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez l\'adresse du suspect';
+                      return 'Entrez l\'adresse du prospect';
                     }
                     return null;
                   },
@@ -234,8 +244,11 @@ class NewProspectState extends State<NewProspect> {
                       initialTime: TimeOfDay.now(),
                       builder: (BuildContext context, Widget? child) {
                         return MediaQuery(
-                          data: MediaQuery.of(context)
-                              .copyWith(alwaysUse24HourFormat: true),
+                          data: MediaQuery.of(
+                            context,
+                          ).copyWith(
+                            alwaysUse24HourFormat: true,
+                          ),
                           child: child!,
                         );
                       },
@@ -296,7 +309,7 @@ class NewProspectState extends State<NewProspect> {
                           _selectedOption = newValue!;
                         });
                       },
-                      items: <String>['Oui', 'Non', 'Indécis']
+                      items: <String>['Oui', 'Non', 'Indecis']
                           .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
@@ -332,7 +345,7 @@ class NewProspectState extends State<NewProspect> {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
                         var url = Uri.parse(
-                          'http://prospection.vibecro-corp.tech/api/suspect',
+                          'http://prospection.vibecro-corp.tech/api/prospect',
                         );
                         final prefs = await SharedPreferences.getInstance();
                         var userId = prefs.getInt('user_id');
@@ -364,13 +377,11 @@ class NewProspectState extends State<NewProspect> {
                             ).showSnackBar(
                               snackBar,
                             );
-                            Navigator.pop(
-                              context,
-                            );
+                            _reloadApp();
                           } else {
                             var snackBar = const SnackBar(
                               content: Text(
-                                'Une erreur est survenue lors de l\'ajout du suspect',
+                                'Une erreur est survenue lors de l\'ajout du prospect',
                               ),
                             );
                             ScaffoldMessenger.of(
@@ -393,7 +404,7 @@ class NewProspectState extends State<NewProspect> {
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.orange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -407,6 +418,7 @@ class NewProspectState extends State<NewProspect> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 50.0),
               ],
             ),
           ),

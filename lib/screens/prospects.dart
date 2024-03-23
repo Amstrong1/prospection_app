@@ -13,6 +13,7 @@ class Prospect extends StatefulWidget {
 
 class ProspectState extends State<Prospect> {
   List<dynamic> prospects = [];
+  String statut = '';
 
   Future<void> fetchProspects() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -28,6 +29,10 @@ class ProspectState extends State<Prospect> {
       setState(() {
         final jsonData = json.decode(response.body);
         prospects = jsonData['data'];
+
+        if (prospects.isEmpty) {
+          statut = 'Aucun prospect ajouté';
+        }
       });
     } catch (e) {
       var snackBar = SnackBar(
@@ -50,9 +55,42 @@ class ProspectState extends State<Prospect> {
         title: const Text('Mes Prospects'),
       ),
       body: prospects.isEmpty
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? statut == 'Aucun prospect ajouté'
+              ? Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/prospect_choice');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.orange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Text('Nouveau'),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Aucun prospect ajouté',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                )
+              : const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.orange,
+                  ),
+                )
           : Column(
               children: [
                 Row(
@@ -64,7 +102,7 @@ class ProspectState extends State<Prospect> {
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.orange,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),
@@ -163,6 +201,7 @@ class ProspectState extends State<Prospect> {
                     },
                   ),
                 ),
+                const SizedBox(height: 20),
               ],
             ),
     );

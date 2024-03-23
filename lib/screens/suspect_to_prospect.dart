@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:prospection_app/screens/home.dart';
+import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SuspectToProspect extends StatefulWidget {
@@ -24,6 +24,15 @@ class NewProspectState extends State<SuspectToProspect> {
   String _selectedOption = 'Indécis';
   late String _selectedSuspect;
 
+  void _reloadApp() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MyBottomNavigationBar()),
+        (Route<dynamic> route) => false,
+      );
+    });
+  }
+
   Future<void> fetchSuspects() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
 
@@ -40,8 +49,8 @@ class NewProspectState extends State<SuspectToProspect> {
         _selectedSuspect = suspects[0]['id'].toString();
       });
     } catch (e) {
-      var snackBar = SnackBar(
-        content: Text(e.toString()),
+      var snackBar = const SnackBar(
+        content: Text("Aucun suspect trouvé"),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
@@ -63,7 +72,9 @@ class NewProspectState extends State<SuspectToProspect> {
       ),
       body: suspects.isEmpty
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Colors.orange,
+              ),
             )
           : SingleChildScrollView(
               child: Padding(
@@ -233,8 +244,13 @@ class NewProspectState extends State<SuspectToProspect> {
                               var url = Uri.parse(
                                 'http://prospection.vibecro-corp.tech/api/prospect-from-suspect',
                               );
+
+                              SharedPreferences pref =
+                                  await SharedPreferences.getInstance();
+                              var userId = pref.getInt('user_id');
                               try {
                                 final response = await http.post(url, body: {
+                                  'user': userId.toString(),
                                   'suspect': _selectedSuspect.toString(),
                                   'app_date': dateInput.text,
                                   'app_time': timeInput.text,
@@ -245,38 +261,43 @@ class NewProspectState extends State<SuspectToProspect> {
                                     jsonDecode(response.body);
                                 if (decodedResponse['success'] == true) {
                                   var snackBar = const SnackBar(
-                                    content:
-                                        Text('Prospect ajouté avec succes'),
-                                  );
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(snackBar);
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const Home(),
+                                    content: Text(
+                                      'Prospect ajouté avec succes',
                                     ),
                                   );
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(
+                                    snackBar,
+                                  );
+                                  _reloadApp();
                                 } else {
                                   var snackBar = const SnackBar(
                                     content: Text(
                                       'Une erreur est survenue lors de l\'ajout du suspect',
                                     ),
                                   );
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(snackBar);
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(
+                                    snackBar,
+                                  );
                                 }
                               } catch (e) {
                                 var snackBar = SnackBar(
                                   content: Text(e.toString()),
                                 );
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(
+                                  snackBar,
+                                );
                               }
                             }
                           },
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
-                            backgroundColor: Colors.blue,
+                            backgroundColor: Colors.orange,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10.0),
                             ),

@@ -2,9 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import 'home.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -19,6 +18,7 @@ class LoginPageState extends State<Login> {
   late String _password;
   bool _isAuthenticated = false;
   bool _passwordVisible = false;
+  bool _sending = false;
 
   @override
   Widget build(BuildContext context) {
@@ -94,76 +94,96 @@ class LoginPageState extends State<Login> {
                     SizedBox(
                       width: double.infinity,
                       height: 50.0,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            _formKey.currentState!.save();
-                            setState(() {
-                              _isAuthenticated = false;
-                            });
-                            var url = Uri.parse(
-                              'http://prospection.vibecro-corp.tech/api/login',
-                            );
+                      child: _sending
+                          ? const Center(
+                              child: CircularProgressIndicator(
+                                color: Colors.orange,
+                              ),
+                            )
+                          : ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  _formKey.currentState!.save();
+                                  setState(() {
+                                    _isAuthenticated = false;
+                                    _sending = true;
+                                  });
+                                  var url = Uri.parse(
+                                    'http://prospection.vibecro-corp.tech/api/login',
+                                  );
 
-                            try {
-                              final response = await http.post(url, body: {
-                                'email': _email,
-                                'password': _password,
-                              });
-                              Map<String, dynamic> decodedResponse =
-                                  jsonDecode(response.body);
-                              if (decodedResponse['success'] == true) {
-                                setState(() {
-                                  _isAuthenticated = true;
-                                });
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                prefs.setBool(
-                                  'isAuthenticated',
-                                  _isAuthenticated,
-                                );
-                                prefs.setInt(
-                                  'user_id',
-                                  decodedResponse['user_id'],
-                                );
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const Home(),
-                                  ),
-                                );
-                              } else {
-                                var snackBar = const SnackBar(
-                                  content:
-                                      Text('Email ou mot de passe incorrecte'),
-                                );
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
-                              }
-                            } catch (e) {
-                              var snackBar = SnackBar(
-                                content: Text(e.toString()),
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar);
-                            }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.blue,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                        ),
-                        child: const Text(
-                          'Se connecter',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                                  try {
+                                    final response =
+                                        await http.post(url, body: {
+                                      'email': _email,
+                                      'password': _password,
+                                    });
+                                    Map<String, dynamic> decodedResponse =
+                                        jsonDecode(response.body);
+                                    if (decodedResponse['success'] == true) {
+                                      setState(() {
+                                        _isAuthenticated = true;
+                                      });
+                                      final prefs =
+                                          await SharedPreferences.getInstance();
+                                      prefs.setBool(
+                                        'isAuthenticated',
+                                        _isAuthenticated,
+                                      );
+                                      prefs.setInt(
+                                        'user_id',
+                                        decodedResponse['user_id'],
+                                      );
+                                      prefs.setInt(
+                                        'user_structure',
+                                        decodedResponse['structure_id'],
+                                      );
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const MyBottomNavigationBar(),
+                                        ),
+                                      );
+                                    } else {
+                                      var snackBar = const SnackBar(
+                                        content: Text(
+                                          'Email ou mot de passe incorrecte',
+                                        ),
+                                      );
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        snackBar,
+                                      );
+                                    }
+                                  } catch (e) {
+                                    var snackBar = SnackBar(
+                                      content: Text(e.toString()),
+                                    );
+                                    ScaffoldMessenger.of(
+                                      context,
+                                    ).showSnackBar(
+                                      snackBar,
+                                    );
+                                  }
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                backgroundColor: Colors.orange,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                              ),
+                              child: const Text(
+                                'Se connecter',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                     ),
                   ],
                 ),

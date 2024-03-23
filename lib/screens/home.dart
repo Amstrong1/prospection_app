@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:prospection_app/screens/login.dart';
+import 'package:prospection_app/widgets/indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:fl_chart/fl_chart.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -38,58 +41,104 @@ class HomePageState extends State<Home> {
     fetchDataCount();
   }
 
+  int touchedIndex = -1;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Accueil'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.account_circle),
-            onPressed: () {
-              Navigator.pushNamed(context, '/profile');
-            },
-          ),
-        ],
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(150.0),
+        child: RoundedBottomAppBar(
+          appBarColor: Colors.orange,
+          appBarHeight: 150.0,
+        ),
       ),
       body: decodedResponse.isEmpty
           ? const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Colors.orange,
+              ),
             )
-          : GridView.count(
-              crossAxisCount: 2,
+          : Column(
               children: [
-                customContainer(
-                  context: context,
-                  title: 'Suspects',
-                  number: decodedResponse['suspects'].toString(),
-                  color: Colors.blue,
-                  routeCreate: '/newsuspect',
-                  routeIndex: '/suspects',
+                const SizedBox(height: 20.0),
+                const Text(
+                  'Statistiques des prospects',
+                  style: TextStyle(
+                    fontSize: 24.0,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                customContainer(
-                  context: context,
-                  title: 'Rapports',
-                  number: decodedResponse['reports'].toString(),
-                  color: Colors.green,
-                  routeCreate: '',
-                  routeIndex: '/reports',
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 1,
+                    child: PieChart(
+                      PieChartData(
+                        pieTouchData: PieTouchData(
+                          touchCallback:
+                              (FlTouchEvent event, pieTouchResponse) {
+                            setState(() {
+                              if (!event.isInterestedForInteractions ||
+                                  pieTouchResponse == null ||
+                                  pieTouchResponse.touchedSection == null) {
+                                touchedIndex = -1;
+                                return;
+                              }
+                              touchedIndex = pieTouchResponse
+                                  .touchedSection!.touchedSectionIndex;
+                            });
+                          },
+                        ),
+                        borderData: FlBorderData(
+                          show: false,
+                        ),
+                        sectionsSpace: 0,
+                        centerSpaceRadius: 40,
+                        sections: showingSections(
+                          touchedIndex,
+                          decodedResponse['prospects'],
+                          decodedResponse['prospectsYes'],
+                          decodedResponse['prospectsNo'],
+                          decodedResponse['prospectsInd'],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-                customContainer(
-                  context: context,
-                  title: 'Propsects',
-                  number: decodedResponse['prospects'].toString(),
-                  color: Colors.red,
-                  routeCreate: '/prospect_choice',
-                  routeIndex: '/prospects',
-                ),
-                customContainer(
-                  context: context,
-                  title: 'Solutions',
-                  number: decodedResponse['solutions'].toString(),
-                  color: Colors.orange,
-                  routeCreate: '',
-                  routeIndex: '/solutions',
+                const Padding(
+                  padding: EdgeInsets.all(20.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Indicator(
+                        color: Colors.green,
+                        text: 'Oui',
+                        isSquare: true,
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Indicator(
+                        color: Colors.red,
+                        text: 'Non',
+                        isSquare: true,
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Indicator(
+                        color: Colors.grey,
+                        text: 'Indécis',
+                        isSquare: true,
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      SizedBox(
+                        height: 18,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -97,68 +146,133 @@ class HomePageState extends State<Home> {
   }
 }
 
-Widget customContainer({
-  required BuildContext context,
-  required String title,
-  required Color color,
-  required String number,
-  required String routeCreate,
-  required String routeIndex,
-}) {
-  return Container(
-    margin: const EdgeInsets.all(8.0),
-    padding: const EdgeInsets.all(16.0),
-    decoration: BoxDecoration(
-      color: color,
-      borderRadius: BorderRadius.circular(10.0),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                fontSize: 16.0,
-              ),
+List<PieChartSectionData> showingSections(
+  touchedIndex,
+  prospects,
+  prospectYes,
+  prospectNo,
+  prospectIndecis,
+) {
+  return List.generate(3, (i) {
+    final isTouched = i == touchedIndex;
+    final fontSize = isTouched ? 25.0 : 16.0;
+    final radius = isTouched ? 60.0 : 50.0;
+    const shadows = [Shadow(color: Colors.black, blurRadius: 2)];
+    if (prospectYes == 0 && prospectNo == 0 && prospectIndecis == 0) {
+      return PieChartSectionData(
+        color: Colors.grey,
+        value: 100,
+        title: '0%',
+        radius: radius,
+        titleStyle: TextStyle(
+          fontSize: fontSize,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+          shadows: shadows,
+        ),
+      );
+    } else {
+      var prospectYespercent = (prospectYes.toDouble() * 100) / prospects;
+      var prospectNopercent = (prospectNo.toDouble() * 100) / prospects;
+      var prospectIndecispercent =
+          (prospectIndecis.toDouble() * 100) / prospects;
+      switch (i) {
+        case 0:
+          return PieChartSectionData(
+            color: Colors.green,
+            value: prospectYespercent,
+            title: '$prospectYespercent%',
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: shadows,
             ),
-            IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, routeCreate);
-              },
-              icon: const Icon(Icons.add_circle),
+          );
+        case 1:
+          return PieChartSectionData(
+            color: Colors.red,
+            value: prospectNopercent,
+            title: '$prospectNopercent%',
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: shadows,
+            ),
+          );
+        case 2:
+          return PieChartSectionData(
+            color: Colors.grey,
+            value: prospectIndecispercent,
+            title: '$prospectIndecispercent%',
+            radius: radius,
+            titleStyle: TextStyle(
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              shadows: shadows,
+            ),
+          );
+        default:
+          throw Error();
+      }
+    }
+  });
+}
+
+class RoundedBottomAppBar extends StatelessWidget
+    implements PreferredSizeWidget {
+  final double appBarHeight;
+  final Color appBarColor;
+
+  const RoundedBottomAppBar({
+    super.key,
+    required this.appBarHeight,
+    required this.appBarColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: appBarHeight,
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      decoration: BoxDecoration(
+        color: appBarColor,
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(40.0),
+          bottomRight: Radius.circular(40.0),
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const Text(
+            'Accueil',
+            style: TextStyle(
+              fontSize: 20.0,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.account_circle,
               color: Colors.white,
             ),
-          ],
-        ),
-        const SizedBox(height: 4.0),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              number,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 25.0,
-              ),
-            ),
-            IconButton(
-              onPressed: () {
-                Navigator.pushNamed(context, routeIndex);
-              },
-              icon: const Icon(Icons.arrow_forward),
-              color: Colors.white,
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(appBarHeight);
 }
 
 class Profil extends StatefulWidget {

@@ -13,6 +13,7 @@ class Suspect extends StatefulWidget {
 
 class SuspectState extends State<Suspect> {
   List<dynamic> suspects = [];
+  String statut = '';
 
   Future<void> fetchSuspects() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -28,6 +29,10 @@ class SuspectState extends State<Suspect> {
       setState(() {
         final jsonData = json.decode(response.body);
         suspects = jsonData['data'];
+
+        if (suspects.isEmpty) {
+          statut = 'Aucun suspect ajouté';
+        }
       });
     } catch (e) {
       var snackBar = SnackBar(
@@ -50,9 +55,42 @@ class SuspectState extends State<Suspect> {
         title: const Text('Mes Suspects'),
       ),
       body: suspects.isEmpty
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
+          ? statut == 'Aucun suspect ajouté'
+              ? Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.pushNamed(context, '/newsuspect');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.orange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Text('Nouveau'),
+                        ),
+                        const SizedBox(width: 10),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Aucun suspect ajouté',
+                      style: TextStyle(
+                        fontSize: 20,
+                      ),
+                    ),
+                  ],
+                )
+              : const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.orange,
+                  ),
+                )
           : Column(
               children: [
                 Row(
@@ -64,7 +102,7 @@ class SuspectState extends State<Suspect> {
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.orange,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10.0),
                         ),

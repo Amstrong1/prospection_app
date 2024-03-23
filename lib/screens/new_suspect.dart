@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:prospection_app/screens/home.dart';
+import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class NewSuspect extends StatefulWidget {
@@ -27,6 +27,15 @@ class NewSuspectState extends State<NewSuspect> {
   late String _address;
   late String _lastname;
   late String _firstname;
+
+  void _reloadApp() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const MyBottomNavigationBar()),
+        (Route<dynamic> route) => false,
+      );
+    });
+  }
 
   Future<void> fetchSolutions() async {
     final response = await http.get(
@@ -313,12 +322,7 @@ class NewSuspectState extends State<NewSuspect> {
                             ).showSnackBar(
                               snackBar,
                             );
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const Home(),
-                              ),
-                            );
+                            _reloadApp();
                           } else {
                             var snackBar = const SnackBar(
                               content: Text(
@@ -341,7 +345,7 @@ class NewSuspectState extends State<NewSuspect> {
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.orange,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -355,6 +359,7 @@ class NewSuspectState extends State<NewSuspect> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 50.0),
               ],
             ),
           ),
