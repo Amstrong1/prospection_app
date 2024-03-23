@@ -234,6 +234,7 @@ class ProspectDetails extends StatelessWidget {
             customText('Telephone', prospect['tel']),
             customText('Entreprise', prospect['company']),
             customText('Date', prospect['created_at']),
+            customText('Rapport', prospect['reports']['report']),
             const SizedBox(height: 20),
             const Text(
               "Solutions : ",
