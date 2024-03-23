@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prospection_app/screens/home.dart';
 import 'package:prospection_app/screens/prospects.dart';
-import 'package:prospection_app/screens/reports.dart';
+// import 'package:prospection_app/screens/reports.dart';
 import 'package:prospection_app/screens/suspects.dart';
 
 class MyApp extends StatelessWidget {
@@ -27,7 +27,7 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
     const Home(),
     const Suspect(),
     const Prospect(),
-    const Report(),
+    // const Report(),
   ];
 
   void _onItemTapped(int index) {
@@ -60,12 +60,12 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
             ),
             label: 'Prospects',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(
-              Icons.edit,
-            ),
-            label: 'Rapports',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(
+          //     Icons.edit,
+          //   ),
+          //   label: 'Rapports',
+          // ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.orange,
