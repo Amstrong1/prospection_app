@@ -52,12 +52,17 @@ class ProspectState extends State<Prospect> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mes Prospects'),
+        title: const Text(
+          'Mes Prospects',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.orange,
       ),
       body: prospects.isEmpty
           ? statut == 'Aucun prospect ajouté'
               ? Column(
                   children: [
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -93,6 +98,7 @@ class ProspectState extends State<Prospect> {
                 )
           : Column(
               children: [
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -234,7 +240,12 @@ class ProspectDetails extends StatelessWidget {
             customText('Telephone', prospect['tel']),
             customText('Entreprise', prospect['company']),
             customText('Date', prospect['created_at']),
-            customText('Rapport', prospect['reports']['report']),
+            prospect['reports'].length > 0
+                ? customText(
+                    'Rapport',
+                    prospect['reports'][0]['report'] ?? "Aucun rapport",
+                  )
+                : customText('Rapport', 'Aucun rapport'),
             const SizedBox(height: 20),
             const Text(
               "Solutions : ",

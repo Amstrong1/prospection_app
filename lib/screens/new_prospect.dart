@@ -30,6 +30,7 @@ class NewProspectState extends State<NewProspect> {
   late String _report;
 
   String _selectedOption = 'Indecis';
+  bool _sending = false;
 
   void _reloadApp() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -41,8 +42,12 @@ class NewProspectState extends State<NewProspect> {
   }
 
   Future<void> fetchSolutions() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    var userStructure = pref.getInt('user_structure');
+
     final response = await http.get(
-      Uri.parse('https://prospection.vibecro-corp.tech/api/solution'),
+      Uri.parse(
+          'https://prospection.vibecro-corp.tech/api/solution/$userStructure'),
     );
     try {
       setState(() {
@@ -69,7 +74,11 @@ class NewProspectState extends State<NewProspect> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nouveau prospect'),
+        title: const Text(
+          'Nouveau prospect',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.orange,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -340,83 +349,95 @@ class NewProspectState extends State<NewProspect> {
                 SizedBox(
                   width: double.infinity,
                   height: 50.0,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        _formKey.currentState!.save();
-                        var url = Uri.parse(
-                          'http://prospection.vibecro-corp.tech/api/prospect',
-                        );
-                        final prefs = await SharedPreferences.getInstance();
-                        var userId = prefs.getInt('user_id');
-                        var userStructure = prefs.getInt('user_structure');
-                        try {
-                          final response = await http.post(url, body: {
-                            'user_structure': userStructure.toString(),
-                            'user': userId.toString(),
-                            'lastname': _lastname,
-                            'firstname': _firstname,
-                            'company': _company,
-                            'address': _address,
-                            'tel': _tel,
-                            'email': _email,
-                            'app_date': dateInput.text,
-                            'app_time': timeInput.text,
-                            'solutions': jsonEncode(selectedSolutions),
-                            'status': _selectedOption,
-                            'report': _report,
-                          });
-                          Map<String, dynamic> decodedResponse =
-                              jsonDecode(response.body);
-                          if (decodedResponse['success'] == true) {
-                            var snackBar = const SnackBar(
-                              content: Text('Prospect ajouté avec succes'),
-                            );
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(
-                              snackBar,
-                            );
-                            _reloadApp();
-                          } else {
-                            var snackBar = const SnackBar(
-                              content: Text(
-                                'Une erreur est survenue lors de l\'ajout du prospect',
-                              ),
-                            );
-                            ScaffoldMessenger.of(
-                              context,
-                            ).showSnackBar(
-                              snackBar,
-                            );
-                          }
-                        } catch (e) {
-                          var snackBar = SnackBar(
-                            content: Text(e.toString()),
-                          );
-                          ScaffoldMessenger.of(
-                            context,
-                          ).showSnackBar(
-                            snackBar,
-                          );
-                        }
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.orange,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                    ),
-                    child: const Text(
-                      'Enregistrer',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
+                  child: _sending
+                      ? const Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.orange,
+                          ),
+                        )
+                      : ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              _formKey.currentState!.save();
+                              setState(() {
+                                _sending = true;
+                              });
+                              var url = Uri.parse(
+                                'http://prospection.vibecro-corp.tech/api/prospect',
+                              );
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              var userId = prefs.getInt('user_id');
+                              var userStructure =
+                                  prefs.getInt('user_structure');
+                              try {
+                                final response = await http.post(url, body: {
+                                  'user_structure': userStructure.toString(),
+                                  'user': userId.toString(),
+                                  'lastname': _lastname,
+                                  'firstname': _firstname,
+                                  'company': _company,
+                                  'address': _address,
+                                  'tel': _tel,
+                                  'email': _email,
+                                  'app_date': dateInput.text,
+                                  'app_time': timeInput.text,
+                                  'solutions': jsonEncode(selectedSolutions),
+                                  'status': _selectedOption,
+                                  'report': _report,
+                                });
+                                Map<String, dynamic> decodedResponse =
+                                    jsonDecode(response.body);
+                                if (decodedResponse['success'] == true) {
+                                  var snackBar = const SnackBar(
+                                    content:
+                                        Text('Prospect ajouté avec succes'),
+                                  );
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(
+                                    snackBar,
+                                  );
+                                  _reloadApp();
+                                } else {
+                                  var snackBar = const SnackBar(
+                                    content: Text(
+                                      'Une erreur est survenue lors de l\'ajout du prospect',
+                                    ),
+                                  );
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(
+                                    snackBar,
+                                  );
+                                }
+                              } catch (e) {
+                                var snackBar = SnackBar(
+                                  content: Text(e.toString()),
+                                );
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(
+                                  snackBar,
+                                );
+                              }
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.orange,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          child: const Text(
+                            'Enregistrer',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
                 ),
                 const SizedBox(height: 50.0),
               ],

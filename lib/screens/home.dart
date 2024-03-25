@@ -45,21 +45,22 @@ class HomePageState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(150.0),
-        child: RoundedBottomAppBar(
-          appBarColor: Colors.orange,
-          appBarHeight: 150.0,
-        ),
-      ),
-      body: decodedResponse.isEmpty
-          ? const Center(
-              child: CircularProgressIndicator(
-                color: Colors.orange,
+    return decodedResponse.isEmpty
+        ? const Center(
+            child: CircularProgressIndicator(
+              color: Colors.orange,
+            ),
+          )
+        : Scaffold(
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(150.0),
+              child: RoundedBottomAppBar(
+                appBarColor: Colors.orange,
+                appBarHeight: 150.0,
+                structure: decodedResponse['structure'],
               ),
-            )
-          : Column(
+            ),
+            body: Column(
               children: [
                 const SizedBox(height: 20.0),
                 const Text(
@@ -140,9 +141,40 @@ class HomePageState extends State<Home> {
                     ],
                   ),
                 ),
+                const SizedBox(height: 20.0),
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    margin: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(20.0),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: const Column(
+                      children: <Widget>[
+                        Text(
+                          'Informations',
+                          style: TextStyle(
+                            fontSize: 24.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 10.0),
+                        Text(
+                          "Aucune information à afficher",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
-    );
+          );
   }
 }
 
@@ -172,10 +204,15 @@ List<PieChartSectionData> showingSections(
         ),
       );
     } else {
-      var prospectYespercent = (prospectYes.toDouble() * 100) / prospects;
-      var prospectNopercent = (prospectNo.toDouble() * 100) / prospects;
-      var prospectIndecispercent =
-          (prospectIndecis.toDouble() * 100) / prospects;
+      var prospectYespercent = double.parse(
+        ((prospectYes.toDouble() * 100) / prospects).toStringAsFixed(1),
+      );
+      var prospectNopercent = double.parse(
+        ((prospectNo.toDouble() * 100) / prospects).toStringAsFixed(1),
+      );
+      var prospectIndecispercent = double.parse(
+        ((prospectIndecis.toDouble() * 100) / prospects).toStringAsFixed(1),
+      );
       switch (i) {
         case 0:
           return PieChartSectionData(
@@ -227,11 +264,13 @@ class RoundedBottomAppBar extends StatelessWidget
     implements PreferredSizeWidget {
   final double appBarHeight;
   final Color appBarColor;
+  final String structure;
 
   const RoundedBottomAppBar({
     super.key,
     required this.appBarHeight,
     required this.appBarColor,
+    required this.structure,
   });
 
   @override
@@ -249,9 +288,9 @@ class RoundedBottomAppBar extends StatelessWidget
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Text(
-            'Accueil',
-            style: TextStyle(
+          Text(
+            structure,
+            style: const TextStyle(
               fontSize: 20.0,
               color: Colors.white,
               fontWeight: FontWeight.bold,

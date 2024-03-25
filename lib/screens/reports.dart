@@ -52,7 +52,7 @@ class ReportState extends State<Report> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mes Reports'),
+        title: const Text('Mes Rapports'),
       ),
       body: reports.isEmpty
           ? statut == 'Aucun rapport ajouté'

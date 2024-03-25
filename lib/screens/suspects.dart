@@ -52,12 +52,17 @@ class SuspectState extends State<Suspect> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mes Suspects'),
+        title: const Text(
+          'Mes Suspects',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.orange,
       ),
       body: suspects.isEmpty
           ? statut == 'Aucun suspect ajouté'
               ? Column(
                   children: [
+                    const SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -93,6 +98,7 @@ class SuspectState extends State<Suspect> {
                 )
           : Column(
               children: [
+                const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
