@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:prospection_app/screens/clients.dart';
-import 'package:prospection_app/screens/home.dart';
 import 'package:prospection_app/screens/login.dart';
 import 'package:prospection_app/screens/new_prospect.dart';
 import 'package:prospection_app/screens/new_suspect.dart';
+import 'package:prospection_app/screens/profil.dart';
 import 'package:prospection_app/screens/prospect_choice.dart';
 import 'package:prospection_app/screens/prospects.dart';
 import 'package:prospection_app/screens/reports.dart';
@@ -38,7 +38,9 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       home: isAuthenticated == true
-          ? const MyBottomNavigationBar()
+          ? const MyBottomNavigationBar(
+              page: 0,
+            )
           : const Login(),
       routes: {
         '/profile': (context) => const Profil(),

@@ -142,7 +142,9 @@ class LoginPageState extends State<Login> {
                                         context,
                                         MaterialPageRoute(
                                           builder: (context) =>
-                                              const MyBottomNavigationBar(),
+                                              const MyBottomNavigationBar(
+                                            page: 0,
+                                          ),
                                         ),
                                       );
                                     } else {
@@ -156,6 +158,9 @@ class LoginPageState extends State<Login> {
                                       ).showSnackBar(
                                         snackBar,
                                       );
+                                      setState(() {
+                                        _sending = false;
+                                      });
                                     }
                                   } catch (e) {
                                     var snackBar = SnackBar(
@@ -166,6 +171,9 @@ class LoginPageState extends State<Login> {
                                     ).showSnackBar(
                                       snackBar,
                                     );
+                                    setState(() {
+                                      _sending = false;
+                                    });
                                   }
                                 }
                               },

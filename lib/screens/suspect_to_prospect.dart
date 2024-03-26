@@ -29,7 +29,11 @@ class NewProspectState extends State<SuspectToProspect> {
   void _reloadApp() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const MyBottomNavigationBar()),
+        MaterialPageRoute(
+          builder: (context) => const MyBottomNavigationBar(
+            page: 2,
+          ),
+        ),
         (Route<dynamic> route) => false,
       );
     });
@@ -253,6 +257,9 @@ class NewProspectState extends State<SuspectToProspect> {
                                 onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     _formKey.currentState!.save();
+                                    setState(() {
+                                      _sending = true;
+                                    });
                                     var url = Uri.parse(
                                       'http://prospection.vibecro-corp.tech/api/prospect-from-suspect',
                                     );
@@ -295,16 +302,24 @@ class NewProspectState extends State<SuspectToProspect> {
                                         ).showSnackBar(
                                           snackBar,
                                         );
+                                        setState(() {
+                                          _sending = false;
+                                        });
                                       }
                                     } catch (e) {
-                                      var snackBar = SnackBar(
-                                        content: Text(e.toString()),
+                                      var snackBar = const SnackBar(
+                                        content: Text(
+                                          "Vérifier les données saisies",
+                                        ),
                                       );
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
                                         snackBar,
                                       );
+                                      setState(() {
+                                        _sending = false;
+                                      });
                                     }
                                   }
                                 },

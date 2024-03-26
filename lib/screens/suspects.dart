@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:prospection_app/screens/edit_suspect.dart';
+import 'package:prospection_app/widgets/animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Suspect extends StatefulWidget {
@@ -22,7 +24,7 @@ class SuspectState extends State<Suspect> {
       'user_id',
     );
 
-    var url = 'https://prospection.vibecro-corp.tech/api/suspect/$userId';
+    var url = 'https://prospection.vibecro-corp.tech/api/suspects/$userId';
 
     try {
       final response = await http.get(Uri.parse(url));
@@ -92,9 +94,7 @@ class SuspectState extends State<Suspect> {
                   ],
                 )
               : const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.orange,
-                  ),
+                  child: AnimatedImage(),
                 )
           : Column(
               children: [
@@ -145,60 +145,69 @@ class SuspectState extends State<Suspect> {
                                   color: Colors.blue,
                                   size: 20,
                                 ),
-                                onPressed: () {},
-                              ),
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.delete,
-                                  color: Colors.red,
-                                  size: 20,
-                                ),
-                                onPressed: () async {
-                                  var url =
-                                      "https://prospection.vibecro-corp.tech/api/suspect/${suspect['id']}";
-                                  try {
-                                    final response = await http.delete(
-                                      Uri.parse(url),
-                                    );
-                                    Map<String, dynamic> decodedResponse =
-                                        jsonDecode(response.body);
-                                    if (decodedResponse['success'] == true) {
-                                      setState(() {
-                                        suspects.removeAt(index);
-                                      });
-                                      var snackBar = const SnackBar(
-                                        content: Text(
-                                          "Suppression éffectuée avec succès",
-                                        ),
-                                      );
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(snackBar);
-                                    } else {
-                                      var snackBar = const SnackBar(
-                                        content: Text(
-                                          "Erreur",
-                                        ),
-                                      );
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(snackBar);
-                                    }
-                                  } catch (e) {
-                                    var snackBar = SnackBar(
-                                      content: Text(e.toString()),
-                                    );
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(snackBar);
-                                  }
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute<dynamic>(
+                                      builder: (_) =>
+                                          EditSuspect(suspect: suspect),
+                                    ),
+                                  );
                                 },
                               ),
+                              // IconButton(
+                              //   icon: const Icon(
+                              //     Icons.delete,
+                              //     color: Colors.red,
+                              //     size: 20,
+                              //   ),
+                              //   onPressed: () async {
+                              //     var url =
+                              //         "https://prospection.vibecro-corp.tech/api/suspect/${suspect['id']}";
+                              //     try {
+                              //       final response = await http.delete(
+                              //         Uri.parse(url),
+                              //       );
+                              //       Map<String, dynamic> decodedResponse =
+                              //           jsonDecode(response.body);
+                              //       if (decodedResponse['success'] == true) {
+                              //         setState(() {
+                              //           suspects.removeAt(index);
+                              //         });
+                              //         var snackBar = const SnackBar(
+                              //           content: Text(
+                              //             "Suppression éffectuée avec succès",
+                              //           ),
+                              //         );
+                              //         ScaffoldMessenger.of(context)
+                              //             .showSnackBar(snackBar);
+                              //       } else {
+                              //         var snackBar = const SnackBar(
+                              //           content: Text(
+                              //             "Erreur",
+                              //           ),
+                              //         );
+                              //         ScaffoldMessenger.of(context)
+                              //             .showSnackBar(snackBar);
+                              //       }
+                              //     } catch (e) {
+                              //       var snackBar = SnackBar(
+                              //         content: Text(e.toString()),
+                              //       );
+                              //       ScaffoldMessenger.of(context)
+                              //           .showSnackBar(snackBar);
+                              //     }
+                              //   },
+                              // ),
                             ],
                           ),
                           onTap: () {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) =>
-                                    SuspectDetails(suspect: suspect),
+                                builder: (context) => SuspectDetails(
+                                  suspect: suspect,
+                                ),
                               ),
                             );
                           },

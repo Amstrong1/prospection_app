@@ -6,35 +6,44 @@ import 'package:http/http.dart' as http;
 import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class NewSuspect extends StatefulWidget {
-  const NewSuspect({super.key});
+class EditProspect extends StatefulWidget {
+  const EditProspect({super.key, required this.prospect});
+
+  final Map<String, dynamic> prospect;
 
   @override
-  NewSuspectState createState() => NewSuspectState();
+  EditProspectState createState() => EditProspectState();
 }
 
-class NewSuspectState extends State<NewSuspect> {
+class EditProspectState extends State<EditProspect> {
+  Map<String, dynamic> prospect = {};
   List<dynamic> solutions = [];
   List<dynamic> selectedSolutions = [];
 
   TextEditingController dateInput = TextEditingController();
   TextEditingController timeInput = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>();
-  late String _tel;
-  late String _email;
-  late String _company;
-  late String _address;
-  late String _lastname;
-  late String _firstname;
+  TextEditingController tel = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController company = TextEditingController();
+  TextEditingController address = TextEditingController();
+  TextEditingController lastname = TextEditingController();
+  TextEditingController firstname = TextEditingController();
+  TextEditingController report = TextEditingController();
 
+  final _formKey = GlobalKey<FormState>();
+
+  late String _selectedOption;
   bool _sending = false;
 
   void _reloadApp() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-            builder: (context) => const MyBottomNavigationBar(page: 1)),
+          builder: (context) => const MyBottomNavigationBar(
+            page: 2,
+          ),
+        ),
         (Route<dynamic> route) => false,
       );
     });
@@ -64,8 +73,19 @@ class NewSuspectState extends State<NewSuspect> {
   @override
   void initState() {
     super.initState();
-    dateInput.text = "";
-    timeInput.text = "";
+    prospect = widget.prospect;
+    tel.text = prospect['tel'];
+    email.text = prospect['email'];
+    company.text = prospect['company'];
+    address.text = prospect['address'];
+    lastname.text = prospect['lastname'];
+    dateInput.text = prospect['app_date'];
+    timeInput.text = prospect['app_time'];
+    firstname.text = prospect['firstname'];
+    prospect['solutions'].forEach((element) {
+      selectedSolutions.add(element['id']);
+    });
+    _selectedOption = prospect['status'];
     fetchSolutions();
   }
 
@@ -74,7 +94,7 @@ class NewSuspectState extends State<NewSuspect> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Nouveau suspect',
+          'Modifier prospect',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
@@ -98,11 +118,11 @@ class NewSuspectState extends State<NewSuspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le nom du suspect';
+                      return 'Entrez le nom du prospect';
                     }
                     return null;
                   },
-                  onSaved: (value) => _lastname = value!,
+                  controller: lastname,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -116,11 +136,11 @@ class NewSuspectState extends State<NewSuspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le(s) prénom(s) du suspect';
+                      return 'Entrez le(s) prénom(s) du prospect';
                     }
                     return null;
                   },
-                  onSaved: (value) => _firstname = value!,
+                  controller: firstname,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -135,11 +155,11 @@ class NewSuspectState extends State<NewSuspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le numero du suspect';
+                      return 'Entrez le numero du prospect';
                     }
                     return null;
                   },
-                  onSaved: (value) => _company = value!,
+                  controller: company,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -160,7 +180,7 @@ class NewSuspectState extends State<NewSuspect> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _email = value!,
+                  controller: email,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -175,12 +195,12 @@ class NewSuspectState extends State<NewSuspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le numero du suspect';
+                      return 'Entrez le numero du prospect';
                     }
                     return null;
                   },
                   keyboardType: TextInputType.phone,
-                  onSaved: (value) => _tel = value!,
+                  controller: tel,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -195,11 +215,11 @@ class NewSuspectState extends State<NewSuspect> {
                   ),
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez l\'adresse du suspect';
+                      return 'Entrez l\'adresse du prospect';
                     }
                     return null;
                   },
-                  onSaved: (value) => _address = value!,
+                  controller: address,
                 ),
                 const SizedBox(height: 20.0),
                 // datepicker
@@ -294,6 +314,39 @@ class NewSuspectState extends State<NewSuspect> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 20.0),
+                const Text(
+                  'Décision du client',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: _selectedOption,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _selectedOption = newValue!;
+                        });
+                      },
+                      items: <String>['Oui', 'Non', 'Indecis']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
                 const SizedBox(height: 30.0),
                 SizedBox(
                   width: double.infinity,
@@ -312,32 +365,28 @@ class NewSuspectState extends State<NewSuspect> {
                                 _sending = true;
                               });
                               var url = Uri.parse(
-                                'http://prospection.vibecro-corp.tech/api/suspect',
+                                'http://prospection.vibecro-corp.tech/api/prospect/${prospect['id']}',
                               );
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              var userId = prefs.getInt('user_id');
-                              var userStructure =
-                                  prefs.getInt('user_structure');
                               try {
                                 final response = await http.post(url, body: {
-                                  'user_structure': userStructure.toString(),
-                                  'user': userId.toString(),
-                                  'lastname': _lastname,
-                                  'firstname': _firstname,
-                                  'company': _company,
-                                  'address': _address,
-                                  'tel': _tel,
-                                  'email': _email,
+                                  'lastname': lastname.text,
+                                  'firstname': firstname.text,
+                                  'company': company.text,
+                                  'address': address.text,
+                                  'tel': tel.text,
+                                  'email': email.text,
                                   'app_date': dateInput.text,
                                   'app_time': timeInput.text,
-                                  'solutions': jsonEncode(selectedSolutions)
+                                  'solutions': jsonEncode(selectedSolutions),
+                                  'status': _selectedOption,
                                 });
                                 Map<String, dynamic> decodedResponse =
                                     jsonDecode(response.body);
                                 if (decodedResponse['success'] == true) {
                                   var snackBar = const SnackBar(
-                                    content: Text('Suspect ajouté avec succes'),
+                                    content: Text(
+                                      'Prospect modifié avec succes',
+                                    ),
                                   );
                                   ScaffoldMessenger.of(
                                     context,
@@ -348,7 +397,7 @@ class NewSuspectState extends State<NewSuspect> {
                                 } else {
                                   var snackBar = const SnackBar(
                                     content: Text(
-                                      'Une erreur est survenue lors de l\'ajout du suspect',
+                                      'Une erreur est survenue lors de la modification du prospect',
                                     ),
                                   );
                                   ScaffoldMessenger.of(
@@ -366,8 +415,11 @@ class NewSuspectState extends State<NewSuspect> {
                                     "Vérifier les données saisies",
                                   ),
                                 );
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(snackBar);
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(
+                                  snackBar,
+                                );
                                 setState(() {
                                   _sending = false;
                                 });

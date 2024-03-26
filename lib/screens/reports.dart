@@ -29,7 +29,7 @@ class ReportState extends State<Report> {
       setState(() {
         final jsonData = json.decode(response.body);
         reports = jsonData['data'];
-        print(reports);
+
         if (reports.isEmpty) {
           statut = 'Aucun rapport ajouté';
         }

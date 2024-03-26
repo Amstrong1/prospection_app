@@ -6,27 +6,30 @@ import 'package:http/http.dart' as http;
 import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class NewSuspect extends StatefulWidget {
-  const NewSuspect({super.key});
+class EditSuspect extends StatefulWidget {
+  const EditSuspect({super.key, required this.suspect});
+
+  final Map<String, dynamic> suspect;
 
   @override
-  NewSuspectState createState() => NewSuspectState();
+  EditSuspectState createState() => EditSuspectState();
 }
 
-class NewSuspectState extends State<NewSuspect> {
+class EditSuspectState extends State<EditSuspect> {
+  Map<String, dynamic> suspect = {};
   List<dynamic> solutions = [];
   List<dynamic> selectedSolutions = [];
 
   TextEditingController dateInput = TextEditingController();
   TextEditingController timeInput = TextEditingController();
+  TextEditingController tel = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController company = TextEditingController();
+  TextEditingController address = TextEditingController();
+  TextEditingController lastname = TextEditingController();
+  TextEditingController firstname = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  late String _tel;
-  late String _email;
-  late String _company;
-  late String _address;
-  late String _lastname;
-  late String _firstname;
 
   bool _sending = false;
 
@@ -34,7 +37,8 @@ class NewSuspectState extends State<NewSuspect> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-            builder: (context) => const MyBottomNavigationBar(page: 1)),
+          builder: (context) => const MyBottomNavigationBar(page: 1),
+        ),
         (Route<dynamic> route) => false,
       );
     });
@@ -46,7 +50,8 @@ class NewSuspectState extends State<NewSuspect> {
 
     final response = await http.get(
       Uri.parse(
-          'https://prospection.vibecro-corp.tech/api/solution/$userStructure'),
+        'https://prospection.vibecro-corp.tech/api/solution/$userStructure',
+      ),
     );
     try {
       setState(() {
@@ -64,8 +69,18 @@ class NewSuspectState extends State<NewSuspect> {
   @override
   void initState() {
     super.initState();
-    dateInput.text = "";
-    timeInput.text = "";
+    suspect = widget.suspect;
+    tel.text = suspect['tel'];
+    email.text = suspect['email'];
+    company.text = suspect['company'];
+    address.text = suspect['address'];
+    lastname.text = suspect['lastname'];
+    dateInput.text = suspect['app_date'];
+    timeInput.text = suspect['app_time'];
+    firstname.text = suspect['firstname'];
+    suspect['solutions'].forEach((element) {
+      selectedSolutions.add(element['id']);
+    });
     fetchSolutions();
   }
 
@@ -74,7 +89,7 @@ class NewSuspectState extends State<NewSuspect> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Nouveau suspect',
+          'Modifier suspect',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.orange,
@@ -96,13 +111,13 @@ class NewSuspectState extends State<NewSuspect> {
                       ),
                     ),
                   ),
+                  controller: lastname,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Entrez le nom du suspect';
                     }
                     return null;
                   },
-                  onSaved: (value) => _lastname = value!,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -120,7 +135,6 @@ class NewSuspectState extends State<NewSuspect> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _firstname = value!,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -133,13 +147,13 @@ class NewSuspectState extends State<NewSuspect> {
                     ),
                     suffixIcon: const Icon(Icons.business),
                   ),
+                  controller: company,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return 'Entrez le numero du suspect';
+                      return 'Entrez l\'entreprise du suspect';
                     }
                     return null;
                   },
-                  onSaved: (value) => _company = value!,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -152,6 +166,7 @@ class NewSuspectState extends State<NewSuspect> {
                     ),
                     suffixIcon: const Icon(Icons.email),
                   ),
+                  controller: email,
                   validator: (value) {
                     if (value!.isEmpty ||
                         !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
@@ -160,7 +175,6 @@ class NewSuspectState extends State<NewSuspect> {
                     }
                     return null;
                   },
-                  onSaved: (value) => _email = value!,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -173,6 +187,7 @@ class NewSuspectState extends State<NewSuspect> {
                     ),
                     suffixIcon: const Icon(Icons.phone),
                   ),
+                  controller: tel,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Entrez le numero du suspect';
@@ -180,7 +195,6 @@ class NewSuspectState extends State<NewSuspect> {
                     return null;
                   },
                   keyboardType: TextInputType.phone,
-                  onSaved: (value) => _tel = value!,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -193,17 +207,17 @@ class NewSuspectState extends State<NewSuspect> {
                     ),
                     suffixIcon: const Icon(Icons.location_on),
                   ),
+                  controller: address,
                   validator: (value) {
                     if (value!.isEmpty) {
                       return 'Entrez l\'adresse du suspect';
                     }
                     return null;
                   },
-                  onSaved: (value) => _address = value!,
                 ),
                 const SizedBox(height: 20.0),
                 // datepicker
-                TextField(
+                TextFormField(
                   controller: dateInput,
                   decoration: InputDecoration(
                     labelText: "Date de rdv",
@@ -234,7 +248,7 @@ class NewSuspectState extends State<NewSuspect> {
                 ),
                 // timepicker
                 const SizedBox(height: 20.0),
-                TextField(
+                TextFormField(
                   controller: timeInput,
                   decoration: InputDecoration(
                     labelText: "Heure de rdv",
@@ -312,7 +326,7 @@ class NewSuspectState extends State<NewSuspect> {
                                 _sending = true;
                               });
                               var url = Uri.parse(
-                                'http://prospection.vibecro-corp.tech/api/suspect',
+                                'http://prospection.vibecro-corp.tech/api/suspect/${suspect['id']}',
                               );
                               final prefs =
                                   await SharedPreferences.getInstance();
@@ -323,12 +337,12 @@ class NewSuspectState extends State<NewSuspect> {
                                 final response = await http.post(url, body: {
                                   'user_structure': userStructure.toString(),
                                   'user': userId.toString(),
-                                  'lastname': _lastname,
-                                  'firstname': _firstname,
-                                  'company': _company,
-                                  'address': _address,
-                                  'tel': _tel,
-                                  'email': _email,
+                                  'lastname': lastname.text,
+                                  'firstname': firstname.text,
+                                  'company': company.text,
+                                  'address': address.text,
+                                  'tel': tel.text,
+                                  'email': email.text,
                                   'app_date': dateInput.text,
                                   'app_time': timeInput.text,
                                   'solutions': jsonEncode(selectedSolutions)
@@ -337,7 +351,7 @@ class NewSuspectState extends State<NewSuspect> {
                                     jsonDecode(response.body);
                                 if (decodedResponse['success'] == true) {
                                   var snackBar = const SnackBar(
-                                    content: Text('Suspect ajouté avec succes'),
+                                    content: Text('Suspect modifié avec succes'),
                                   );
                                   ScaffoldMessenger.of(
                                     context,
@@ -348,7 +362,7 @@ class NewSuspectState extends State<NewSuspect> {
                                 } else {
                                   var snackBar = const SnackBar(
                                     content: Text(
-                                      'Une erreur est survenue lors de l\'ajout du suspect',
+                                      'Une erreur est survenue lors de la modification du suspect',
                                     ),
                                   );
                                   ScaffoldMessenger.of(
