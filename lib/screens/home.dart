@@ -6,6 +6,8 @@ import 'package:prospection_app/widgets/animate.dart';
 import 'package:prospection_app/widgets/indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -15,6 +17,65 @@ class Home extends StatefulWidget {
 
 class HomePageState extends State<Home> {
   late Map<String, dynamic> decodedResponse = {};
+  late Position currentPosition;
+  String _address = '';
+
+  Future<Position> _getCurrentPosition() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+  }
+
+  Future<void> _insertLocation() async {
+    final prefs = await SharedPreferences.getInstance();
+    var userId = prefs.getInt('user_id');
+    var userStructure = prefs.getInt('user_structure');
+    currentPosition = await _getCurrentPosition();
+
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        currentPosition.latitude,
+        currentPosition.longitude,
+      );
+      Placemark placemark = placemarks[0];
+      setState(() {
+        _address =
+            '${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.country}';
+      });
+      await http.post(
+        Uri.parse('https://prospection.vibecro-corp.tech/api/location'),
+        body: {
+          'user_structure': userStructure.toString(),
+          'user': userId.toString(),
+          'latitude': currentPosition.latitude.toString(),
+          'longitude': currentPosition.longitude.toString(),
+          'address': _address,
+        },
+      );
+      print(userStructure.toString());
+    } catch (e) {
+      setState(() {
+        _address = 'Adresse non trouvée';
+        print(e);
+      });
+    }
+  }
 
   Future<void> fetchDataCount() async {
     final prefs = await SharedPreferences.getInstance();
@@ -38,6 +99,7 @@ class HomePageState extends State<Home> {
   void initState() {
     super.initState();
     fetchDataCount();
+    _insertLocation();
   }
 
   int touchedIndex = -1;

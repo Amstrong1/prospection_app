@@ -39,8 +39,13 @@ dependencies:
   http: ^1.2.1
   intl: ^0.19.0
   fl_chart: ^0.66.2
+  dropdown_search: ^5.0.6
+  geocoding: ^3.0.0
+  location: ^5.0.3
+  geolocator: ^11.0.0
   # geocoding: ^3.0.0
   # location: ^5.0.3
+  # permission_handler: ^11.3.1
 
 dev_dependencies:
   flutter_test:

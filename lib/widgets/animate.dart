@@ -21,7 +21,7 @@ class AnimatedImageState extends State<AnimatedImage>
     );
     _animation = Tween<double>(
       begin: 0,
-      end: 5,
+      end: 6,
     ).animate(_controller);
     _controller.repeat(reverse: true);
   }

@@ -3,8 +3,10 @@ import 'package:intl/intl.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:prospection_app/widgets/animate.dart';
 import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 class SuspectToProspect extends StatefulWidget {
   const SuspectToProspect({super.key});
@@ -22,7 +24,7 @@ class NewProspectState extends State<SuspectToProspect> {
   final _formKey = GlobalKey<FormState>();
   late String _report;
   String _selectedOption = 'Indécis';
-  late String _selectedSuspect;
+  late int _selectedSuspect;
 
   bool _sending = false;
 
@@ -46,13 +48,12 @@ class NewProspectState extends State<SuspectToProspect> {
       'user_id',
     );
     final response = await http.get(
-      Uri.parse('https://prospection.vibecro-corp.tech/api/suspect/$userId'),
+      Uri.parse('https://prospection.vibecro-corp.tech/api/suspects/$userId'),
     );
     try {
       setState(() {
         final jsonData = json.decode(response.body);
         suspects = List<dynamic>.from(jsonData['data']);
-        _selectedSuspect = suspects[0]['id'].toString();
       });
     } catch (e) {
       var snackBar = const SnackBar(
@@ -82,9 +83,7 @@ class NewProspectState extends State<SuspectToProspect> {
       ),
       body: suspects.isEmpty
           ? const Center(
-              child: CircularProgressIndicator(
-                color: Colors.orange,
-              ),
+              child: AnimatedImage(),
             )
           : SingleChildScrollView(
               child: Padding(
@@ -108,24 +107,48 @@ class NewProspectState extends State<SuspectToProspect> {
                           ),
                           borderRadius: BorderRadius.circular(10.0),
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedSuspect,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedSuspect = newValue!;
-                              });
-                            },
-                            items: suspects.map<DropdownMenuItem<String>>(
-                                (dynamic suspect) {
-                              return DropdownMenuItem<String>(
-                                value: suspect['id'].toString(),
-                                child: Text(
-                                  '${suspect['lastname']} ${suspect['firstname']}',
-                                ),
-                              );
-                            }).toList(),
-                          ),
+                        child: Autocomplete<String>(
+                          fieldViewBuilder: (context, textEditingController,
+                              focusNode, onFieldSubmitted) {
+                            return TextFormField(
+                              controller: textEditingController,
+                              focusNode: focusNode,
+                              decoration: const InputDecoration(
+                                labelText: 'Sélectionner un suspect',
+                                border: InputBorder.none,
+                              ),
+                            );
+                          },
+                          optionsBuilder: (TextEditingValue textEditingValue) {
+                            return suspects
+                                .map(
+                              (e) => '${e['lastname']}  ${e['firstname']}',
+                            )
+                                .where(
+                              (String option) {
+                                return option.toLowerCase().contains(
+                                      textEditingValue.text.toLowerCase(),
+                                    );
+                              },
+                            );
+                          },
+                          onSelected: (value) {
+                            List<String> searchKeywords = value.split('  ');
+                            for (var element in suspects) {
+                              if (searchKeywords.every((keyword) =>
+                                  element['lastname']
+                                      .toString()
+                                      .toLowerCase()
+                                      .contains(keyword.toLowerCase()) ||
+                                  element['firstname']
+                                      .toString()
+                                      .toLowerCase()
+                                      .contains(keyword.toLowerCase()))) {
+                                _selectedSuspect = element['id'];
+                                continue;
+                              }
+                            }
+                          },
                         ),
                       ),
                       const SizedBox(height: 20.0),
@@ -194,12 +217,8 @@ class NewProspectState extends State<SuspectToProspect> {
                         },
                       ),
                       const SizedBox(height: 20.0),
-                      const Text(
-                        'Décision du client',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        padding: const EdgeInsets.only(left: 10.0),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -208,22 +227,19 @@ class NewProspectState extends State<SuspectToProspect> {
                           ),
                           borderRadius: BorderRadius.circular(10.0),
                         ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: _selectedOption,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                _selectedOption = newValue!;
-                              });
-                            },
-                            items: <String>['Oui', 'Non', 'Indécis']
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
-                              );
-                            }).toList(),
+                        child: DropdownSearch<String>(
+                          items: const ['Oui', 'Non', 'Indecis'],
+                          dropdownDecoratorProps: const DropDownDecoratorProps(
+                            dropdownSearchDecoration: InputDecoration(
+                              border: InputBorder.none,
+                              labelText: "Décision du client",
+                            ),
                           ),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedOption = value!;
+                            });
+                          },
                         ),
                       ),
                       const SizedBox(height: 20.0),
@@ -263,20 +279,22 @@ class NewProspectState extends State<SuspectToProspect> {
                                     var url = Uri.parse(
                                       'http://prospection.vibecro-corp.tech/api/prospect-from-suspect',
                                     );
-
                                     SharedPreferences pref =
                                         await SharedPreferences.getInstance();
                                     var userId = pref.getInt('user_id');
                                     try {
-                                      final response =
-                                          await http.post(url, body: {
-                                        'user': userId.toString(),
-                                        'suspect': _selectedSuspect.toString(),
-                                        'app_date': dateInput.text,
-                                        'app_time': timeInput.text,
-                                        'report': _report,
-                                        'status': _selectedOption.toString(),
-                                      });
+                                      final response = await http.post(
+                                        url,
+                                        body: {
+                                          'user': userId.toString(),
+                                          'suspect':
+                                              _selectedSuspect.toString(),
+                                          'app_date': dateInput.text,
+                                          'app_time': timeInput.text,
+                                          'report': _report,
+                                          'status': _selectedOption.toString(),
+                                        },
+                                      );
                                       Map<String, dynamic> decodedResponse =
                                           jsonDecode(response.body);
                                       if (decodedResponse['success'] == true) {

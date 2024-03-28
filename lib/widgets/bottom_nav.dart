@@ -24,9 +24,9 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   // String _address = '';
 
   // Future<void> _insertLocation(double latitude, double longitude) async {
-  // final prefs = await SharedPreferences.getInstance();
-  // var userId = prefs.getInt('user_id');
-  // var userStructure = prefs.getInt('structure_id');
+  //   final prefs = await SharedPreferences.getInstance();
+  //   var userId = prefs.getInt('user_id');
+  //   var userStructure = prefs.getInt('structure_id');
 
   //   try {
   //     List<geocoding_platform_interface.Placemark> placemarks =
@@ -39,9 +39,11 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   //       _address =
   //           '${placemark.locality}, ${placemark.subAdministrativeArea}, ${placemark.country}';
   //     });
+  //     print(_address);
   //   } catch (e) {
   //     setState(() {
   //       _address = 'Adresse non trouvée';
+  //       print(e);
   //     });
   //   }
 
@@ -57,24 +59,20 @@ class MyBottomNavigationBarState extends State<MyBottomNavigationBar> {
   //   );
   // }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   setState(() {
-  //     location.enableBackgroundMode(enable: true);
-  //     _locationStream = location.onLocationChanged;
-  //     _locationStream.listen((LocationData userLocation) {
-  //       _insertLocation(userLocation.latitude!, userLocation.longitude!);
-  //     });
-  //   });
-  // }
-
   @override
   void initState() {
     super.initState();
     if (widget.page != 0) {
       _selectedIndex = widget.page;
     }
+    // _insertLocation(48.864716, 2.349014);
+    // setState(() {
+    // location.enableBackgroundMode(enable: true);
+    // _locationStream = location.onLocationChanged;
+    // _locationStream.listen((LocationData userLocation) {
+    //   _insertLocation(userLocation.latitude!, userLocation.longitude!);
+    // });
+    // });
   }
 
   static final List<Widget> _widgetOptions = <Widget>[

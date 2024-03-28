@@ -13,6 +13,7 @@ import 'package:prospection_app/screens/suspect_to_prospect.dart';
 import 'package:prospection_app/screens/suspects.dart';
 import 'package:prospection_app/widgets/bottom_nav.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+// import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,6 +27,15 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key, required this.isAuthenticated});
 
   final bool isAuthenticated;
+
+  // Future<bool> _requestNotificationPermission() async {
+  //   final permission = await Permission.notification.request();
+  //   if (permission == PermissionStatus.granted) {
+  //     return true;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 
   // This widget is the root of your application.
   @override

@@ -104,7 +104,7 @@ class ProspectState extends State<Prospect> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.pushNamed(context, '/newprospect');
+                        Navigator.pushNamed(context, '/prospect_choice');
                       },
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
