@@ -134,7 +134,7 @@ class ProspectState extends State<Prospect> {
                         ),
                         child: ListTile(
                           title: Text(
-                            '${prospect['lastname']} ${prospect['firstname']}',
+                            '${prospect['company']}',
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,

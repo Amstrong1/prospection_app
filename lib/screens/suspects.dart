@@ -134,7 +134,7 @@ class SuspectState extends State<Suspect> {
                         ),
                         child: ListTile(
                           title: Text(
-                            '${suspect['lastname']} ${suspect['firstname']}',
+                            '${suspect['company']}',
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
