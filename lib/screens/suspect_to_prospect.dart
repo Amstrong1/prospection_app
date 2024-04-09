@@ -23,10 +23,14 @@ class NewProspectState extends State<SuspectToProspect> {
 
   final _formKey = GlobalKey<FormState>();
   late String _report;
-  String _selectedOption = 'Indécis';
+  String _selectedOption = 'Indecis';
   late int _selectedSuspect;
 
   bool _sending = false;
+  late String _lastname;
+  late String _firstname;
+  late String _tel;
+  late String _email;
 
   void _reloadApp() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -122,7 +126,7 @@ class NewProspectState extends State<SuspectToProspect> {
                           optionsBuilder: (TextEditingValue textEditingValue) {
                             return suspects
                                 .map(
-                              (e) => '${e['lastname']}  ${e['firstname']}',
+                              (e) => '${e['company']}',
                             )
                                 .where(
                               (String option) {
@@ -133,23 +137,95 @@ class NewProspectState extends State<SuspectToProspect> {
                             );
                           },
                           onSelected: (value) {
-                            List<String> searchKeywords = value.split('  ');
                             for (var element in suspects) {
-                              if (searchKeywords.every((keyword) =>
-                                  element['lastname']
-                                      .toString()
-                                      .toLowerCase()
-                                      .contains(keyword.toLowerCase()) ||
-                                  element['firstname']
-                                      .toString()
-                                      .toLowerCase()
-                                      .contains(keyword.toLowerCase()))) {
+                              if (element['company']
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase())) {
                                 _selectedSuspect = element['id'];
                                 continue;
                               }
                             }
                           },
                         ),
+                      ),
+                      const SizedBox(height: 20.0),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Nom',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              10.0,
+                            ),
+                          ),
+                        ),
+                        // validator: (value) {
+                        //   if (value!.isEmpty) {
+                        //     return 'Entrez le nom du prospect';
+                        //   }
+                        //   return null;
+                        // },
+                        onSaved: (value) => _lastname = value!,
+                      ),
+                      const SizedBox(height: 20.0),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Prénom(s)',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              10.0,
+                            ),
+                          ),
+                        ),
+                        // validator: (value) {
+                        //   if (value!.isEmpty) {
+                        //     return 'Entrez le(s) prénom(s) du prospect';
+                        //   }
+                        //   return null;
+                        // },
+                        onSaved: (value) => _firstname = value!,
+                      ),
+
+                      const SizedBox(height: 20.0),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              10.0,
+                            ),
+                          ),
+                          suffixIcon: const Icon(Icons.email),
+                        ),
+                        // validator: (value) {
+                        //   if (value!.isEmpty ||
+                        //       !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                        //           .hasMatch(value)) {
+                        //     return 'Entrez une adresse mail valide';
+                        //   }
+                        //   return null;
+                        // },
+                        onSaved: (value) => _email = value!,
+                      ),
+                      const SizedBox(height: 20.0),
+                      TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Contact',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(
+                              10.0,
+                            ),
+                          ),
+                          suffixIcon: const Icon(Icons.phone),
+                        ),
+                        // validator: (value) {
+                        //   if (value!.isEmpty) {
+                        //     return 'Entrez le numero du prospect';
+                        //   }
+                        //   return null;
+                        // },
+                        keyboardType: TextInputType.phone,
+                        onSaved: (value) => _tel = value!,
                       ),
                       const SizedBox(height: 20.0),
                       // datepicker
@@ -289,6 +365,10 @@ class NewProspectState extends State<SuspectToProspect> {
                                           'user': userId.toString(),
                                           'suspect':
                                               _selectedSuspect.toString(),
+                                          'lastname': _lastname,
+                                          'firstname': _firstname,
+                                          'tel': _tel,
+                                          'email': _email,
                                           'app_date': dateInput.text,
                                           'app_time': timeInput.text,
                                           'report': _report,
@@ -312,7 +392,7 @@ class NewProspectState extends State<SuspectToProspect> {
                                       } else {
                                         var snackBar = const SnackBar(
                                           content: Text(
-                                            'Une erreur est survenue lors de l\'ajout du suspect',
+                                            'Une erreur est survenue lors de l\'ajout du prospect',
                                           ),
                                         );
                                         ScaffoldMessenger.of(
@@ -330,6 +410,7 @@ class NewProspectState extends State<SuspectToProspect> {
                                           "Vérifier les données saisies",
                                         ),
                                       );
+                                      print(e.toString());
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -357,6 +438,7 @@ class NewProspectState extends State<SuspectToProspect> {
                                 ),
                               ),
                       ),
+                      const SizedBox(height: 50.0),
                     ],
                   ),
                 ),

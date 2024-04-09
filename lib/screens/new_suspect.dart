@@ -21,12 +21,8 @@ class NewSuspectState extends State<NewSuspect> {
   TextEditingController timeInput = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  late String _tel;
-  late String _email;
   late String _company;
   late String _address;
-  late String _lastname;
-  late String _firstname;
 
   bool _sending = false;
 
@@ -87,41 +83,6 @@ class NewSuspectState extends State<NewSuspect> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Nom',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        10.0,
-                      ),
-                    ),
-                  ),
-                  // validator: (value) {
-                  //   if (value!.isEmpty) {
-                  //     return 'Entrez le nom du suspect';
-                  //   }
-                  //   return null;
-                  // },
-                  onSaved: (value) => _lastname = value!,
-                ),
-                const SizedBox(height: 20.0),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Prénom(s)',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        10.0,
-                      ),
-                    ),
-                  ),
-                  // validator: (value) {
-                  //   if (value!.isEmpty) {
-                  //     return 'Entrez le(s) prénom(s) du suspect';
-                  //   }
-                  //   return null;
-                  // },
-                  onSaved: (value) => _firstname = value!,
-                ),
                 const SizedBox(height: 20.0),
                 TextFormField(
                   decoration: InputDecoration(
@@ -140,47 +101,6 @@ class NewSuspectState extends State<NewSuspect> {
                     return null;
                   },
                   onSaved: (value) => _company = value!,
-                ),
-                const SizedBox(height: 20.0),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        10.0,
-                      ),
-                    ),
-                    suffixIcon: const Icon(Icons.email),
-                  ),
-                  // validator: (value) {
-                  // if (value!.isEmpty ||
-                  //     !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                  //         .hasMatch(value)) {
-                  //   return 'Entrez une adresse mail valide';
-                  // }
-                  // return null;
-                  // },
-                  onSaved: (value) => _email = value!,
-                ),
-                const SizedBox(height: 20.0),
-                TextFormField(
-                  decoration: InputDecoration(
-                    labelText: 'Contact',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(
-                        10.0,
-                      ),
-                    ),
-                    suffixIcon: const Icon(Icons.phone),
-                  ),
-                  // validator: (value) {
-                  // if (value!.isEmpty) {
-                  // return 'Entrez le numero du suspect';
-                  // }
-                  // return null;
-                  // },
-                  keyboardType: TextInputType.phone,
-                  onSaved: (value) => _tel = value!,
                 ),
                 const SizedBox(height: 20.0),
                 TextFormField(
@@ -323,12 +243,8 @@ class NewSuspectState extends State<NewSuspect> {
                                 final response = await http.post(url, body: {
                                   'user_structure': userStructure.toString(),
                                   'user': userId.toString(),
-                                  'lastname': _lastname,
-                                  'firstname': _firstname,
                                   'company': _company,
                                   'address': _address,
-                                  'tel': _tel,
-                                  'email': _email,
                                   'app_date': dateInput.text,
                                   'app_time': timeInput.text,
                                   'solutions': jsonEncode(selectedSolutions)

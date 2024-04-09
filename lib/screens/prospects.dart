@@ -234,7 +234,7 @@ class ProspectDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${prospect['lastname']} ${prospect['firstname']}'),
+        title: Text('${prospect['company']}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -248,6 +248,7 @@ class ProspectDetails extends StatelessWidget {
             customText('Telephone', prospect['tel']),
             customText('Entreprise', prospect['company']),
             customText('Date', prospect['created_at']),
+            customText('Réponse', prospect['status']),
             prospect['reports'].length > 0
                 ? customText(
                     'Rapport',
@@ -284,7 +285,7 @@ class ProspectDetails extends StatelessWidget {
   }
 }
 
-Widget customText(String label, String value) {
+Widget customText(String label, String? value) {
   return Row(
     children: [
       Text(
@@ -302,7 +303,7 @@ Widget customText(String label, String value) {
         ),
       ),
       Text(
-        value,
+        value ?? '...',
         style: const TextStyle(
           fontSize: 18.0,
         ),

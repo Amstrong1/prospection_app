@@ -234,7 +234,7 @@ class SuspectDetails extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${suspect['lastname']} ${suspect['firstname']}'),
+        title: Text('${suspect['company']}'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -279,7 +279,7 @@ class SuspectDetails extends StatelessWidget {
   }
 }
 
-Widget customText(String label, String value) {
+Widget customText(String label, String? value) {
   return Row(
     children: [
       Text(
@@ -297,7 +297,7 @@ Widget customText(String label, String value) {
         ),
       ),
       Text(
-        value,
+        value ?? '...',
         style: const TextStyle(
           fontSize: 18.0,
         ),

@@ -74,14 +74,14 @@ class EditProspectState extends State<EditProspect> {
   void initState() {
     super.initState();
     prospect = widget.prospect;
-    tel.text = prospect['tel'];
-    email.text = prospect['email'];
-    company.text = prospect['company'];
-    address.text = prospect['address'];
-    lastname.text = prospect['lastname'];
-    dateInput.text = prospect['app_date'];
-    timeInput.text = prospect['app_time'];
-    firstname.text = prospect['firstname'];
+    tel.text = prospect['tel'] ?? '';
+    email.text = prospect['email'] ?? '';
+    company.text = prospect['company'] ?? '';
+    address.text = prospect['address'] ?? '';
+    lastname.text = prospect['lastname'] ?? '';
+    dateInput.text = prospect['app_date'] ?? '';
+    timeInput.text = prospect['app_time'] ?? '';
+    firstname.text = prospect['firstname'] ?? '';
     prospect['solutions'].forEach((element) {
       selectedSolutions.add(element['id']);
     });
@@ -116,12 +116,12 @@ class EditProspectState extends State<EditProspect> {
                       ),
                     ),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Entrez le nom du prospect';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value!.isEmpty) {
+                  //     return 'Entrez le nom du prospect';
+                  //   }
+                  //   return null;
+                  // },
                   controller: lastname,
                 ),
                 const SizedBox(height: 20.0),
@@ -134,12 +134,12 @@ class EditProspectState extends State<EditProspect> {
                       ),
                     ),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Entrez le(s) prénom(s) du prospect';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value!.isEmpty) {
+                  //     return 'Entrez le(s) prénom(s) du prospect';
+                  //   }
+                  //   return null;
+                  // },
                   controller: firstname,
                 ),
                 const SizedBox(height: 20.0),
@@ -153,12 +153,12 @@ class EditProspectState extends State<EditProspect> {
                     ),
                     suffixIcon: const Icon(Icons.business),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Entrez le numero du prospect';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value!.isEmpty) {
+                  //     return 'Entrez le numero du prospect';
+                  //   }
+                  //   return null;
+                  // },
                   controller: company,
                 ),
                 const SizedBox(height: 20.0),
@@ -172,14 +172,14 @@ class EditProspectState extends State<EditProspect> {
                     ),
                     suffixIcon: const Icon(Icons.email),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty ||
-                        !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) {
-                      return 'Entrez une adresse mail valide';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value!.isEmpty ||
+                  //       !RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                  //           .hasMatch(value)) {
+                  //     return 'Entrez une adresse mail valide';
+                  //   }
+                  //   return null;
+                  // },
                   controller: email,
                 ),
                 const SizedBox(height: 20.0),
@@ -193,12 +193,12 @@ class EditProspectState extends State<EditProspect> {
                     ),
                     suffixIcon: const Icon(Icons.phone),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Entrez le numero du prospect';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value!.isEmpty) {
+                  //     return 'Entrez le numero du prospect';
+                  //   }
+                  //   return null;
+                  // },
                   keyboardType: TextInputType.phone,
                   controller: tel,
                 ),
@@ -213,12 +213,12 @@ class EditProspectState extends State<EditProspect> {
                     ),
                     suffixIcon: const Icon(Icons.location_on),
                   ),
-                  validator: (value) {
-                    if (value!.isEmpty) {
-                      return 'Entrez l\'adresse du prospect';
-                    }
-                    return null;
-                  },
+                  // validator: (value) {
+                  //   if (value!.isEmpty) {
+                  //     return 'Entrez l\'adresse du prospect';
+                  //   }
+                  //   return null;
+                  // },
                   controller: address,
                 ),
                 const SizedBox(height: 20.0),
